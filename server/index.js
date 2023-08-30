@@ -36,6 +36,19 @@ app.post('/authenticate', (req, res) => {
   const iat = Math.floor(Date.now() / 1000);
 
   const credential = {
+    jti: crypto.randomUUID(),
+    iat: iat,
+    name: reqUserName,
+    email: reqUserEmail,
+    external_id: reqAccountId,
+    user_fields: {
+      skywayPlan: reqSkyWayPlan,
+      ContractId: reqContractId,
+      ProjectId: reqProjectId,
+      CompanyName: reqCompanyName
+    }
+  }
+/*
     iat: iat,
     name: reqUserName,
     email: reqUserEmail,
@@ -45,7 +58,9 @@ app.post('/authenticate', (req, res) => {
     ProjectId: reqProjectId,
     CompanyName: reqCompanyName,
     authToken: calculateAuthToken(iat, reqUserName, reqUserEmail, reqAccountId, reqSkyWayPlan, reqContractId, reqProjectId, reqCompanyName)
-  };
+    };
+*/
+  credential.authToken = calculateAuthToken(credential);
 
   res.send(credential);
 });
@@ -54,8 +69,10 @@ const listener = app.listen(process.env.PORT || 8080, () => {
   console.log(`Server listening on port ${listener.address().port}`)
 });
 
-const calculateAuthToken = (iat, name, email, accountId, skywayPlan, contractId, projectId, companyName) => {
-  return jwt.sign({
+//const calculateAuthToken = (iat, name, email, accountId, skywayPlan, contractId, projectId, companyName) => {
+const calculateAuthToken = (credential) => {
+  return jwt.sign(
+  /*{
     jti: crypto.randomUUID(),
     iat: iat,
     name: name,
@@ -67,7 +84,8 @@ const calculateAuthToken = (iat, name, email, accountId, skywayPlan, contractId,
       ProjectId: projectId,
       CompanyName: companyName
     }
-  }, secret);
+  }*/
+  credential, secret);
 }
 
 
